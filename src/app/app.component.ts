@@ -1,9 +1,10 @@
 import { isPlatformServer } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, Inject, OnDestroy, OnInit, PLATFORM_ID } from '@angular/core';
-import { makeStateKey, TransferState } from '@angular/platform-browser';
+import { Meta, Title, makeStateKey, TransferState } from '@angular/platform-browser';
 import { Observable, of } from 'rxjs';
 import { tap } from 'rxjs/operators';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-root',
@@ -19,9 +20,15 @@ export class AppComponent implements OnInit, OnDestroy {
   count = 0;
 
   constructor(@Inject(PLATFORM_ID) private platformId: string,
+    private metaTagService: Meta,
+    private pageTitle: Title,
     private transferState: TransferState,
     private httpClient: HttpClient) {
     console.log(`AppComponent constructor PLATFORM_ID:${this.platformId}`);
+    this.pageTitle.setTitle('Title-Me');
+    this.metaTagService.addTags([
+      { name: 'keyword', content: 'Meta-Me-keyword' },
+    ]);
     this.title += `(${platformId})`;
     this.count++;
   }
@@ -52,7 +59,7 @@ export class AppComponent implements OnInit, OnDestroy {
       );
     } else {
       // 如果沒有 cache 資料，就從 API 抓取
-      return this.httpClient.get<any[]>('http://localhost:4200/assets/posts.json')
+      return this.httpClient.get<any[]>(`${isPlatformServer(this.platformId) ? environment.serverHost : environment.clientHost}assets/posts.json`)
       .pipe(
         tap(() => console.log('AppComponent value[http]')),
         tap((result: any[]) => {

@@ -4,6 +4,7 @@ import { Component, Inject, OnInit, PLATFORM_ID } from '@angular/core';
 import { makeStateKey, TransferState } from '@angular/platform-browser';
 import { Observable, of } from 'rxjs';
 import { tap } from 'rxjs/operators';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-home',
@@ -42,7 +43,7 @@ export class HomeComponent implements OnInit {
       );
     } else {
       // 如果沒有 cache 資料，就從 API 抓取
-      return this.httpClient.get<any[]>('http://localhost:4200/assets/posts.json')
+      return this.httpClient.get<any[]>(`${isPlatformServer(this.platformId) ? environment.serverHost : environment.clientHost}assets/posts.json`)
       .pipe(
         tap(() => console.log('HomeComponent value[http]')),
         tap((result: any[]) => {
